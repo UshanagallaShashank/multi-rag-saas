@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.tenant import Tenant
 
-from ..models.user import User
+from ..models.user import User, UserRole
 
 from ..utils.hashing import hash_password, verify_password
 
@@ -15,7 +15,7 @@ async def create_user(db: AsyncSession, email: str, password: str, tenant_name: 
     tenant = Tenant(name=tenant_name)
     db.add(tenant)
     await db.flush()
-    user = User(tenant_id=tenant.id, email=email, password_hash=hash_password(password))
+    user = User(tenant_id=tenant.id, email=email, password_hash=hash_password(password), role=UserRole.owner)
     db.add(user)
     await db.commit()
     return create_token(str(user.id), str(tenant.id), user.role.value)
